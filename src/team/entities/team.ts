@@ -65,3 +65,5 @@ export class TeamRole {
     @OneToMany(() => TeamMember, (teamMember) => teamMember.role)
     roleTeamMember: TeamMember[]
 }
+
+export type CreateTeamRoleInput = Pick<TeamRole, "nameEn" | "nameTh">;
