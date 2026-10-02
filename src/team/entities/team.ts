@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { teamRole } from "../../database/seed/data-seed/team-role.js";
 
 @Entity()
 export class Team {
@@ -25,6 +26,9 @@ export class Team {
 
     @OneToMany(() => TeamMember, (teamMember) => teamMember.teamId)
     teamMember: TeamMember[]
+
+    @OneToMany(() => TeamInvite, (teamInvite) => teamInvite.team)
+    teamInvite: TeamInvite[]
 }
 
 @Entity()
@@ -64,4 +68,39 @@ export class TeamRole {
 
     @OneToMany(() => TeamMember, (teamMember) => teamMember.role)
     roleTeamMember: TeamMember[]
+
+    @OneToMany(() => TeamInvite, (teamInvite) => teamInvite.role)
+    roleTeamInvite: TeamInvite[]
 }
+
+@Entity()
+export class TeamInvite {
+    @PrimaryGeneratedColumn("uuid")
+    id: string
+
+    @Column()
+    inviteRefCode: string
+
+    @Column()
+    email: string
+
+    @ManyToOne(() => Team, (team) => team.id)
+    team: string
+
+    @ManyToOne(() => TeamRole, (teamRole) => teamRole.id)
+    role: string
+
+    @Column()
+    expiredAt: Date
+    
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
+
+    @DeleteDateColumn()
+    deletedAt: Date
+}
+
+export type CreateTeamRoleInput = Pick<TeamRole, "nameEn" | "nameTh">;
