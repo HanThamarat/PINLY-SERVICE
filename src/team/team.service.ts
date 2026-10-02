@@ -3,6 +3,8 @@ import { CreateNewTeamDTO } from './dto/team.dto.js';
 import { UserInfoType } from '../hooks/ecrypt.js';
 import { DataSource } from 'typeorm';
 import { Team, TeamMember, TeamRole } from './entities/team.js';
+import { redis } from '../libs/redis.js';
+
 
 @Injectable()
 export class TeamService {
@@ -47,6 +49,8 @@ export class TeamService {
                 return CreateTeam;
             });
 
+            await redis.del(`myteam:${user.userId}`);
+
             return createNew;
         } catch (err: any) {
             return err;
@@ -55,10 +59,17 @@ export class TeamService {
 
     async getMyTeam(user: UserInfoType) {
         try {
+            const cacheData = await redis.get(`myteam:${user.userId}`);
+
+            if (cacheData) {
+                const convertToJson = await JSON.parse(cacheData);
+                return convertToJson;
+            }
 
             const findMyTeam = await this.dataSource.query(`
                 select u.id as userId, u."name" as name, json_agg(
                     json_build_object(
+                        'teamId', t."id",
                         'teamName', t."teamName",
                         'roleEn', tr."nameEn",
                         'roleTh', tr."nameTh"
@@ -75,6 +86,10 @@ export class TeamService {
             if (findMyTeam.length === 0) {
                 throw "Don't have team in your account."
             }
+
+            await redis.set(`myteam:${user.userId}`, JSON.stringify(findMyTeam[0]), {
+                EX: 300,
+            });
             
             return findMyTeam[0]
         } catch (err) {

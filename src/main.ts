@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { appDataSource } from './libs/datasource.js';
+import { redisInitialize } from './libs/redis.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,7 +24,13 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    trustedOrigins: ['*'],
+  });
+
   await appDataSource.initialize();
+  await redisInitialize();
   await app.listen(process.env.PORT ?? 3000);
 }
 
