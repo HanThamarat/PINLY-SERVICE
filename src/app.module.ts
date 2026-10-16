@@ -11,6 +11,7 @@ import { TeamModule } from './team/team.module.js';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard.js';
 import { JwtModule } from '@nestjs/jwt';
+import { TemplateModule } from './template/template.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -36,6 +37,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     }),
     AuthModule,
     TeamModule,
+    TemplateModule,
   ],
   controllers: [AppController, TeamController],
   providers: [
